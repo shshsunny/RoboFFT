@@ -51,10 +51,8 @@
 # -----------------------------------------------------------------------------
 # RoboFFT release asset URLs
 # -----------------------------------------------------------------------------
-# Fill the TODO strings below with your official file-hosting URLs.
-# For train datasets, direct file URLs to train.npz are recommended. Legacy
-# Google Drive folder URLs are kept only as comments for reference.
-# For normalization and checkpoint assets, use direct file URLs when possible.
+# Official RoboFFT release asset URLs hosted on ModelScope.
+# Assets not covered by this release keep the original upstream fallback URLs below.
 
 ROBOFFT_MAIN_ROBOMIMIC_TASKS = {"lift", "can", "square", "transport"}
 
@@ -101,8 +99,9 @@ ROBOFFT_RELEASE_CHECKPOINT_URLS = {
 }
 
 def _obs_type_from_path(path):
-    return "image" if "img" in str(path) else "state"
-
+    """Infer the Robomimic observation type from a dataset/checkpoint path."""
+    path = str(path).replace("\\", "/")
+    return "image" if ("-img" in path or "_img" in path or "/image/" in path) else "state"
 
 def _require_release_url(kind, key, url):
     if url:
@@ -133,22 +132,36 @@ def _maybe_robofft_normalization_url(cfg):
 
 
 def _maybe_robofft_checkpoint_url(cfg):
-    path = str(cfg.base_policy_path)
+    path = str(cfg.base_policy_path).replace("\\", "/")
+
     for task in ROBOFFT_MAIN_ROBOMIMIC_TASKS:
-        for obs_type, filename in (("state", "state_3000.pt"), ("image", "state_2000.pt")):
-            marker = f"checkpoints/robofft-f/reflow/{task}/{obs_type}/{filename}"
-            if marker in path.replace("\\", "/"):
-                key = ("reflow", task, obs_type)
+        candidates = {
+            ("reflow", task, "state"): (
+                f"checkpoints/robofft-f/reflow/{task}/state/state_3000.pt",
+                f"checkpoints/{task}/reflow_mlp/state_3000.pt",
+                f"{task}_pre_reflow_mlp_",
+            ),
+            ("reflow", task, "image"): (
+                f"checkpoints/robofft-f/reflow/{task}/image/state_2000.pt",
+                f"checkpoints/{task}/reflow_mlp_img/state_2000.pt",
+                f"{task}_pre_reflow_mlp_img_",
+            ),
+        }
+        for key, markers in candidates.items():
+            if any(marker in path for marker in markers):
                 return _require_release_url("checkpoint", key, ROBOFFT_RELEASE_CHECKPOINT_URLS[key])
     return None
 
 def get_dataset_download_url(cfg):
     """
     Download processed train.npz and normalization.npz to the dataset paths specified in cfg.
-    
     """
+    release_url = _maybe_robofft_dataset_url(cfg)
+    if release_url is not None:
+        return release_url
+
     env = cfg.env
-    use_d4rl_dataset=cfg.get('use_d4rl_dataset', False)
+    use_d4rl_dataset = cfg.get('use_d4rl_dataset', False)
     # Gym
     if env == "hopper-medium-v2":
         if use_d4rl_dataset:
@@ -182,23 +195,10 @@ def get_dataset_download_url(cfg):
         return "https://drive.google.com/drive/folders/1rpVsdpqWPygL89E-t4SLQmZgwQ3mpNnY?usp=drive_link"
     elif (env == "square" and "ph" in cfg.train_dataset_path and "img" not in cfg.train_dataset_path):
         return "https://drive.google.com/drive/folders/1wqqjT9JZ9LX11l2Sz_vGxfcT3BfcNrGk?usp=drive_link"
-    # Robomimic-MH
-    elif env == "lift" and "img" not in cfg.train_dataset_path:  # state
-        return "https://drive.google.com/drive/u/1/folders/1lbXgMKBTAiFdJqPZqWXpwjEyrVW16MBu"
-    elif env == "lift" and "img" in cfg.train_dataset_path:  # img
-        return "https://drive.google.com/drive/u/1/folders/1H-UncdzHx6wd5NWVzrQyftfGls7KGz1O"
-    elif env == "can" and "img" not in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1J1qSvsDEf40jnMZY9W0r6ww--E3MdmK3"
-    elif env == "can" and "img" in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1VGp_5xXXb1-GJutdSc6AZSzXNk-6_vRz"
-    elif env == "square" and "img" not in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1mVVNOJ6wt2EXoapF7PKkcqxbsB9gvK-B"
-    elif env == "square" and "img" in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1-aGqVeKLIzJCEst8p0ZTjfjkrXFfJLxa"
-    elif env == "transport" and "img" not in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1EVHmFx-YdX4MEE1EjwduVayvaH9vvqvK"
-    elif env == "transport" and "img" in cfg.train_dataset_path:
-        return "https://drive.google.com/drive/u/1/folders/1cOkAZQmmETYEPFrnnX0EuD6mv0kUfMO2"
+    # Robomimic-MH covered by the official RoboFFT release assets.
+    elif env in ROBOFFT_MAIN_ROBOMIMIC_TASKS and "ph" not in str(cfg.train_dataset_path):
+        key = (env, _obs_type_from_path(cfg.train_dataset_path))
+        return _require_release_url("train dataset", key, ROBOFFT_RELEASE_TRAIN_URLS[key])
     # Furniture-Bench
     elif env == "one_leg_low_dim":
         return "https://drive.google.com/drive/u/1/folders/1v4LG2D1fS8id5hqE7Jjt7MYNFUEBNyh4"
@@ -268,23 +268,10 @@ def get_normalization_download_url(cfg):
         and "img" not in cfg.normalization_path
     ):
         return "https://drive.google.com/file/d/1_75UM0frCZVtcROgfWsdJ0FstToZd1b5/view?usp=drive_link"
-    # Robomimic-MH
-    elif env == "lift" and "img" not in cfg.normalization_path:  # state
-        return "https://drive.google.com/file/d/1d3WjwRds-7I5bBFpZuY27OT9ycb8r_QM/view?usp=drive_link"
-    elif env == "lift" and "img" in cfg.normalization_path:  # img
-        return "https://drive.google.com/file/d/15GnKDIK8VasvUHahcvEeK_uEs1J9i0ja/view?usp=drive_link"
-    elif env == "can" and "img" not in cfg.normalization_path:
-        return "https://drive.google.com/file/d/14FxHk9zQ-5ulAO26a6xrdvc-gRkL36FR/view?usp=drive_link"
-    elif env == "can" and "img" in cfg.normalization_path:
-        return "https://drive.google.com/file/d/1APAB6W10ECaNVVL72F0C2wC6oJhhbjWX/view?usp=drive_link"
-    elif env == "square" and "img" not in cfg.normalization_path:
-        return "https://drive.google.com/file/d/1FFMqWVv0145OJjbA_iglkWywmdK22Za-/view?usp=drive_link"
-    elif env == "square" and "img" in cfg.normalization_path:
-        return "https://drive.google.com/file/d/1jq5atfHdu-ZMQ8YaFjwcctbJESBYDgP8/view?usp=drive_link"
-    elif env == "transport" and "img" not in cfg.normalization_path:
-        return "https://drive.google.com/file/d/1EmC80gIgLoqQ8kRPH5r0mDVqX6NqHO3p/view?usp=drive_link"
-    elif env == "transport" and "img" in cfg.normalization_path:
-        return "https://drive.google.com/file/d/1LBgvIacNzbXCZXWKYanddqiotevG3hmA/view?usp=drive_link"
+    # Robomimic-MH covered by the official RoboFFT release assets.
+    elif env in ROBOFFT_MAIN_ROBOMIMIC_TASKS and "ph" not in str(cfg.normalization_path):
+        key = (env, _obs_type_from_path(cfg.normalization_path))
+        return _require_release_url("normalization", key, ROBOFFT_RELEASE_NORMALIZATION_URLS[key])
     # Furniture-Bench
     elif env == "one_leg_low_dim":
         return "https://drive.google.com/file/d/1fbYxau8Z0tifeuu_06UKdRRz8zozxMUE/view?usp=drive_link"
