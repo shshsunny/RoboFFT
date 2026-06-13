@@ -85,7 +85,7 @@ The release keeps the original hard-coded download style.
 <!--Official RoboFFT asset URLs should be filled in the top-level TODO dictionaries in `robofft-f/script/download_url.py` and `robofft-d/script/download_url.py`-->
 
 
-Specifically, fill these dictionaries after uploading the assets:
+Official ModelScope URLs are provided in:
 
 ```python
 ROBOFFT_RELEASE_TRAIN_URLS
@@ -111,7 +111,7 @@ ${ROBOFFT_F_DATA_DIR}/robomimic/<task>-img/train.npz
 ${ROBOFFT_F_DATA_DIR}/robomimic/<task>-img/normalization.npz
 ```
 
-The same layout is used by RoboFFT-D because `ROBOFFT_D_DATA_DIR` defaults to the same root-level `data/` directory.
+After you modify the config files with the base policy and data file paths above, download will be automatically triggered before training.
 
 ## Quick Start
 
