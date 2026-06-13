@@ -7,7 +7,7 @@ _target_: agent.finetune.train_rwr_diffusion_agent.TrainRWRDiffusionAgent
 
 name: ${env_name}_rwr_diffusion_mlp_ta${horizon_steps}_td${denoising_steps}
 logdir: ${oc.env:ROBOFFT_D_LOG_DIR}/robomimic-finetune/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
-base_policy_path: log/robomimic-pretrain/lift_pre_diffusion_mlp_ta4_td20/2026-03-24_14-17-42_42/checkpoint/state_3000.pt
+base_policy_path: ${oc.env:ROBOFFT_D_DATA_DIR}/checkpoints/robofft-d/diffusion/${env_name}/state/state_3000.pt
 # ${oc.env:ROBOFFT_D_LOG_DIR}/robomimic-pretrain/lift/lift_pre_diffusion_mlp_ta4_td20/2024-06-28_14-47-58/checkpoint/state_5000.pt
 robomimic_env_cfg_path: cfg/robomimic/env_meta/${env_name}.json
 normalization_path: ${oc.env:ROBOFFT_D_DATA_DIR}/robomimic/${env_name}/normalization.npz

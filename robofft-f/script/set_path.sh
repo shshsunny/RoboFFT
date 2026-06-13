@@ -3,20 +3,33 @@
 ##################### Paths #####################
 #### RoboFFT-F Authors revised from DPPO's original repository
 
-# Set default paths
-DEFAULT_DIR="${PWD}"
-DEFAULT_DATA_DIR="${PWD}/data"
-DEFAULT_LOG_DIR="${PWD}/log"
+# Resolve repository locations without introducing extra environment variables.
+# If robofft-f and robofft-d live under a common release root, data/checkpoints
+# are shared at <release-root>/data, while logs are separated under
+# <release-root>/log/robofft-f and <release-root>/log/robofft-d.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PARENT_DIR="$(cd "${DEFAULT_DIR}/.." && pwd)"
+if [ -d "${PARENT_DIR}/robofft-f" ] && [ -d "${PARENT_DIR}/robofft-d" ]; then
+  SHARED_ROOT="${PARENT_DIR}"
+else
+  SHARED_ROOT="${DEFAULT_DIR}"
+fi
+
+DEFAULT_DATA_DIR="${SHARED_ROOT}/data"
+DEFAULT_LOG_DIR="${SHARED_ROOT}/log/robofft-f"
 
 # Prompt the user for input, allowing overrides
-read -p "Enter the place where your robofft_f script lies: [default: ${DEFAULT_DIR}], press ENTER to use default: " DIR
+read -p "Enter the place where your robofft-f script lies: [default: ${DEFAULT_DIR}], press ENTER to use default: " DIR
 ROBOFFT_F_DIR=${DIR:-$DEFAULT_DIR}  # Use user input or default if input is empty
 
-read -p "Enter the desired data directory [default: ${DEFAULT_DATA_DIR}], press ENTER to use default: " DATA_DIR
-ROBOFFT_F_DATA_DIR=${DATA_DIR:-$DEFAULT_DATA_DIR}  # Use user input or default if input is empty
+read -p "Enter the shared data/checkpoint directory [default: ${DEFAULT_DATA_DIR}], press ENTER to use default: " DATA_DIR
+ROBOFFT_F_DATA_DIR=${DATA_DIR:-$DEFAULT_DATA_DIR}  # Shared with ROBOFFT_D_DATA_DIR by default
 
-read -p "Enter the desired logging directory [default: ${DEFAULT_LOG_DIR}], press ENTER to use default: " LOG_DIR
-ROBOFFT_F_LOG_DIR=${LOG_DIR:-$DEFAULT_LOG_DIR}  # Use user input or default if input is empty
+read -p "Enter the RoboFFT-F logging directory [default: ${DEFAULT_LOG_DIR}], press ENTER to use default: " LOG_DIR
+ROBOFFT_F_LOG_DIR=${LOG_DIR:-$DEFAULT_LOG_DIR}  # Branch-specific logs by default
+
+mkdir -p "$ROBOFFT_F_DATA_DIR" "$ROBOFFT_F_LOG_DIR" "$ROBOFFT_F_DATA_DIR/checkpoints"
 
 # Export to current session
 export ROBOFFT_F_DIR="$ROBOFFT_F_DIR"
@@ -25,8 +38,8 @@ export ROBOFFT_F_LOG_DIR="$ROBOFFT_F_LOG_DIR"
 
 # Confirm the paths with the user
 echo "Script directory set to: $ROBOFFT_F_DIR"
-echo "Data directory set to: $ROBOFFT_F_DATA_DIR"
-echo "Log directory set to: $ROBOFFT_F_LOG_DIR"
+echo "Shared data/checkpoint directory set to: $ROBOFFT_F_DATA_DIR"
+echo "RoboFFT-F log directory set to: $ROBOFFT_F_LOG_DIR"
 
 # Append environment variables to .bashrc
 echo "export ROBOFFT_F_DIR=\"$ROBOFFT_F_DIR\"" >> ~/.bashrc

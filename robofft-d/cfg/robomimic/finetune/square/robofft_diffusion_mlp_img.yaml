@@ -7,7 +7,7 @@ _target_: agent.finetune.train_fpo_diffusion_img_agent.TrainFPOImgDiffusionAgent
 
 name: ${env_name}_robofft_diffusion_mlp_img_ta${horizon_steps}_td${denoising_steps}_tdf${ft_denoising_steps}
 logdir: ${oc.env:ROBOFFT_D_LOG_DIR}/robomimic-finetune/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
-base_policy_path: log/robomimic-pretrain/square_pre_diffusion_mlp_img_ta4_td100/2026-03-24_14-17-27_42/checkpoint/state_2000.pt
+base_policy_path: ${oc.env:ROBOFFT_D_DATA_DIR}/checkpoints/robofft-d/diffusion/${env_name}/image/state_2000.pt
 robomimic_env_cfg_path: cfg/robomimic/env_meta/${env_name}-img.json
 normalization_path: ${oc.env:ROBOFFT_D_DATA_DIR}/robomimic/${env_name}-img/normalization.npz
 

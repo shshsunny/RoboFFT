@@ -1,4 +1,102 @@
+
+# -----------------------------------------------------------------------------
+# RoboFFT release asset URLs
+# -----------------------------------------------------------------------------
+# Fill the TODO strings below with your official file-hosting URLs.
+# For train datasets, direct file URLs to train.npz are recommended. Legacy
+# Google Drive folder URLs are kept only as comments for reference.
+# For normalization and checkpoint assets, use direct file URLs when possible.
+
+ROBOFFT_MAIN_ROBOMIMIC_TASKS = {"lift", "can", "square", "transport"}
+
+ROBOFFT_RELEASE_TRAIN_URLS = {
+    ('lift', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/lift/train.npz",
+    ('lift', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/lift-img/train.npz",
+
+    ('can', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/can/train.npz",
+    ('can', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/can-img/train.npz",
+
+    ('square', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/square/train.npz",
+    ('square', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/square-img/train.npz",
+
+    ('transport', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/transport/train.npz",
+    ('transport', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/transport-img/train.npz",
+}
+
+ROBOFFT_RELEASE_NORMALIZATION_URLS = {
+    ('lift', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/lift/normalization.npz",
+    ('lift', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/lift-img/normalization.npz",
+
+    ('can', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/can/normalization.npz",
+    ('can', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/can-img/normalization.npz",
+
+    ('square', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/square/normalization.npz",
+    ('square', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/square-img/normalization.npz",
+
+    ('transport', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/transport/normalization.npz",
+    ('transport', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/datasets/robomimic/transport-img/normalization.npz",
+}
+
+ROBOFFT_RELEASE_CHECKPOINT_URLS = {
+    ('diffusion', 'lift', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/lift/diffusion_mlp/state_3000.pt",
+    ('diffusion', 'lift', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/lift/diffusion_mlp_img/state_2000.pt",
+
+    ('diffusion', 'can', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/can/diffusion_mlp/state_3000.pt",
+    ('diffusion', 'can', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/can/diffusion_mlp_img/state_2000.pt",
+
+    ('diffusion', 'square', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/square/diffusion_mlp/state_3000.pt",
+    ('diffusion', 'square', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/square/diffusion_mlp_img/state_2000.pt",
+
+    ('diffusion', 'transport', 'state'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/transport/diffusion_mlp/state_3000.pt",
+    ('diffusion', 'transport', 'image'): "https://modelscope.cn/models/shshsunny/RoboFFT/resolve/master/checkpoints/transport/diffusion_mlp_img/state_2000.pt",
+}
+
+def _obs_type_from_path(path):
+    return "image" if "img" in str(path) else "state"
+
+
+def _require_release_url(kind, key, url):
+    if url:
+        return url
+    raise ValueError(
+        f"Missing official RoboFFT {kind} URL for {key}. "
+        "Please fill the corresponding TODO entry in script/download_url.py. "
+        "The previous DPPO/ReinFlow reference is left as a nearby comment."
+    )
+
+
+def _maybe_robofft_dataset_url(cfg):
+    env = cfg.env
+    path = str(cfg.train_dataset_path)
+    if env in ROBOFFT_MAIN_ROBOMIMIC_TASKS and "robomimic" in path and "ph" not in path:
+        key = (env, _obs_type_from_path(path))
+        return _require_release_url("train dataset", key, ROBOFFT_RELEASE_TRAIN_URLS[key])
+    return None
+
+
+def _maybe_robofft_normalization_url(cfg):
+    env = cfg.env_name
+    path = str(cfg.normalization_path)
+    if env in ROBOFFT_MAIN_ROBOMIMIC_TASKS and "robomimic" in path and "ph" not in path:
+        key = (env, _obs_type_from_path(path))
+        return _require_release_url("normalization", key, ROBOFFT_RELEASE_NORMALIZATION_URLS[key])
+    return None
+
+
+def _maybe_robofft_checkpoint_url(cfg):
+    path = str(cfg.base_policy_path)
+    for task in ROBOFFT_MAIN_ROBOMIMIC_TASKS:
+        for obs_type, filename in (("state", "state_3000.pt"), ("image", "state_2000.pt")):
+            marker = f"checkpoints/robofft-d/diffusion/{task}/{obs_type}/{filename}"
+            if marker in path.replace("\\", "/"):
+                key = ("diffusion", task, obs_type)
+                return _require_release_url("checkpoint", key, ROBOFFT_RELEASE_CHECKPOINT_URLS[key])
+    return None
+
 def get_dataset_download_url(cfg):
+    release_url = _maybe_robofft_dataset_url(cfg)
+    if release_url is not None:
+        return release_url
     env = cfg.env
     # Gym
     if env == "hopper-medium-v2":
@@ -69,6 +167,9 @@ def get_dataset_download_url(cfg):
 
 
 def get_normalization_download_url(cfg):
+    release_url = _maybe_robofft_normalization_url(cfg)
+    if release_url is not None:
+        return release_url
     env = cfg.env_name
     # Gym
     if env == "hopper-medium-v2":
@@ -139,6 +240,9 @@ def get_normalization_download_url(cfg):
 
 
 def get_checkpoint_download_url(cfg):
+    release_url = _maybe_robofft_checkpoint_url(cfg)
+    if release_url is not None:
+        return release_url
     path = cfg.base_policy_path
     ######################################
     ####             Gym

@@ -17,7 +17,7 @@ hydra:
 _target_: agent.finetune.robofft_f.train_fpo_flow_agent.TrainFPOFlowAgent
 name: ${env_name}_ft_fpo_reflow_mlp_ta${horizon_steps}_td${denoising_steps}_tdf${ft_denoising_steps}_seed${seed}
 logdir: ${oc.env:ROBOFFT_F_LOG_DIR}/robomimic/finetune/${env_name}_ft_fpo_reflow_mlp_ta${horizon_steps}_td${denoising_steps}_tdf${ft_denoising_steps}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
-base_policy_path: log/robomimic/pretrain/can/can_pre_reflow_mlp_ta4_td100/2026-03-25_21-00-28_42/checkpoint/state_3000.pt
+base_policy_path: ${oc.env:ROBOFFT_F_DATA_DIR}/checkpoints/robofft-f/reflow/${env_name}/state/state_3000.pt
 robomimic_env_cfg_path: cfg/robomimic/env_meta/${env_name}.json
 normalization_path: ${oc.env:ROBOFFT_F_DATA_DIR}/robomimic/${env_name}/normalization.npz
 
