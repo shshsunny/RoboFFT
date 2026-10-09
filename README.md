@@ -313,18 +313,19 @@ Note that the evaluation program is inherited from ReinFlow and DPPO and we have
 
 ## Citation
 
-If you find this repository useful, please cite RoboFFT. The BibTeX entry below should be updated once the final paper metadata is available.
+If you find this repository useful, please cite RoboFFT:
 
 ```bibtex
 @inproceedings{robofft2026,
-  title     = {RoboFFT: Finetuning Generative Robot Policy via Online Reinforcement Learning with Forward Process},
-  author    = {RoboFFT Author(s)},
-  booktitle = {Conference on Robot Learning},
-  year      = {2026},
-  note      = {Manuscript under review}
+  title={RoboFFT: Finetuning Generative Robot Policy via Online Reinforcement Learning with Forward Process},
+  author={Li, Yu and Hu, Shenghe and Wang, Yuhan and Pu, Yaoxiang and Zhang, Haotong and Chen, Yuanpei and Yang, Yaodong},
+  booktitle={Conference on Robot Learning (CoRL)},
+  year={2026},
+  note={Accepted for publication},
+  url={https://arxiv.org/abs/2609.32236}
 }
 ```
 
 ## Acknowledgements
 
-This release builds on prior open-source implementations for generative robot policy finetuning, including the ReinFlow and DPPO codebases. We also thank the Robomimic and robosuite projects for providing the simulation benchmark infrastructure used by the released experiments.
+This release builds on prior open-source implementations for generative robot policy finetuning, including the [ReinFlow](https://reinflow.github.io/) and [DPPO](https://diffusion-ppo.github.io/) codebases. We also thank the [Robomimic](https://robomimic.github.io/) and [Robosuite](https://robosuite.ai) projects for providing the simulation benchmark infrastructure used by the released experiments.
