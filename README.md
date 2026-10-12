@@ -1,5 +1,13 @@
 # RoboFFT: Finetuning Generative Robot Policy via Online Reinforcement Learning with Forward Process
 
+<p align="center">
+  <strong>Accepted by CoRL 2026</strong>
+</p>
+
+<p align="center">
+  <a href="https://arxiv.org/abs/2609.32236"><img src="https://img.shields.io/badge/arXiv-Paper-b31b1b?logo=arxiv&logoColor=white" alt="arXiv"></a> <a href="https://student-of-holmes.github.io/RoboFFT/"><img src="https://img.shields.io/badge/Website-Project-1f6feb?logo=googlechrome&logoColor=white" alt="Website"></a> <a href="https://huggingface.co/shshsunny/RoboFFT/"><img src="https://img.shields.io/badge/%F0%9F%A4%97-Hugging%20Face-f9ab00" alt="Hugging Face"></a>
+</p>
+
 
 <p align="center">
   <a href="#installation">Installation</a> |
